@@ -1,13 +1,15 @@
-import type { NextFunction, Request, Response } from "express";
-import fs from "fs";
-import {config} from "../config.js";
 
-export async function handlerGetMetrics(_: Request, res: Response, next: NextFunction) {
+import type { Request, Response } from "express";
+import { config } from "../config.js";
+
+export async function handlerMetrics(_: Request, res: Response) {
   res.set("Content-Type", "text/html; charset=utf-8");
-  let page = fs.readFileSync("src/app/admin.html", "utf-8");
-  page = page.replace("NUM",String(config.fileserverHits));
-  res.send(page);
-  next();
+  res.send(`<html>
+  <body>
+    <h1>Welcome, Chirpy Admin</h1>
+    <p>Chirpy has been visited ${config.api.fileServerHits} times!</p>
+  </body>
+</html>
+`);
 }
-
 
