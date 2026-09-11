@@ -12,7 +12,7 @@ import {
   middlewareLogResponse,
   middlewareMetricsInc,
 } from "./api/middleware.js";
-import { handlerChirpsValidate } from "./api/chirps.js";
+import { handlerCreateChirp } from "./api/chirps.js";
 import { config } from "./config.js";
 
 const migrationClient = postgres(config.db.url, { max: 1 });
@@ -35,8 +35,8 @@ app.post("/admin/reset", (req, res, next) => {
   Promise.resolve(handlerReset(req, res)).catch(next);
 });
 
-app.post("/api/validate_chirp", (req, res, next) => {
-  Promise.resolve(handlerChirpsValidate(req, res)).catch(next);
+app.post("/api/chirps", (req, res, next) => {
+  Promise.resolve(handlerCreateChirp(req, res)).catch(next);
 });
 
 app.post("/api/users", (req, res, next) => {

@@ -2,13 +2,16 @@ import type { Request, Response } from "express";
 
 import { respondWithJSON } from "./json.js";
 import { BadRequestError } from "./errors.js";
+import { createChirp } from "../db/queries/chirps.js";
+import { NewChirp } from "../db/schema.js";
 
-export async function handlerChirpsValidate(req: Request, res: Response) {
-  type parameters = {
+
+export async function handlerCreateChirp(req:Request, res:Response){
+  type Parameters = {
     body: string;
-  };
-
-  const params: parameters = req.body;
+    userId: string;
+  }
+  const params: Parameters = req.body;
 
   const maxChirpLength = 140;
   if (params.body.length > maxChirpLength) {
@@ -18,7 +21,6 @@ export async function handlerChirpsValidate(req: Request, res: Response) {
   }
 
   const words = params.body.split(" ");
-
   const badWords = ["kerfuffle", "sharbert", "fornax"];
   for (let i = 0; i < words.length; i++) {
     const word = words[i];
@@ -28,10 +30,14 @@ export async function handlerChirpsValidate(req: Request, res: Response) {
     }
   }
 
-  const cleaned = words.join(" ");
+  const cleanedBody = words.join(" ");
 
-  respondWithJSON(res, 200, {
-    cleanedBody: cleaned,
-  });
+  const cleanedChirp: NewChirp = {
+    userId: params.userId,
+    body: cleanedBody
+  }
+
+  const dbResponse = await createChirp(cleanedChirp);
+  
+  return respondWithJSON(res, 201, dbResponse);
 }
-
