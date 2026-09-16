@@ -9,4 +9,3 @@ export function respondWithJSON(res: Response, code: number, payload: any) {
   const body = JSON.stringify(payload);
   res.status(code).send(body);
 }
-

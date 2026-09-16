@@ -6,12 +6,3 @@ import { config } from "../config.js";
 
 const conn = postgres(config.db.url);
 export const db = drizzle(conn, { schema });
-
-
-
-
-
-
-
-
-
