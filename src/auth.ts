@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import type { JwtPayload } from "jsonwebtoken";
 
 import { UserNotAuthenticatedError } from "./api/errors.js";
+import { Request } from "express";
 
 const TOKEN_ISSUER = "chirpy";
 
@@ -57,3 +58,11 @@ export function validateJWT(tokenString: string, secret: string) {
   return decoded.sub;
 }
 
+export function getBearToken(req: Request): string {
+  const tokenString = req.get("Authorization")
+  if(!tokenString){
+    throw new UserNotAuthenticatedError("JWT not in header");
+  }
+  const strippedToken = tokenString.split(" ")[1];
+  return strippedToken
+}

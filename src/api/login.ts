@@ -1,14 +1,20 @@
 import type { Request, Response } from "express";
 import { getUserByEmail } from "../db/queries/users.js";
 import { BadRequestError, UserNotAuthenticatedError } from "./errors.js";
-import { checkPasswordHash } from "../auth.js";
+import { checkPasswordHash, makeJWT } from "../auth.js";
 import type { NewUser } from "../db/schema.js";
 import { respondWithJSON } from "./json.js";
+import {config} from "../config.js";
+
+type LoginResponse = Omit<NewUser,"hashedPassword"> & {
+  token: string
+}
 
 export async function handlerLogin(req:Request, res:Response){  
   type Parameters = {
     password: string;
     email: string;
+    expiresInSeconds?: number;
   }
   
   const params: Parameters = req.body;
@@ -28,12 +34,19 @@ export async function handlerLogin(req:Request, res:Response){
   if(!await checkPasswordHash(params.password, searchecdUser.hashedPassword)){
     throw new UserNotAuthenticatedError("incorrect email or password");
   }
+
+  let tokenExpiration = params.expiresInSeconds;
+  if(!tokenExpiration || tokenExpiration > 3600){
+    tokenExpiration = 36000
+  }
+  const token = makeJWT(searchecdUser.id,tokenExpiration,config.jwt);
   
-  const returnResponse: Omit<NewUser,"hashedPassword"> = {
+  const returnResponse: LoginResponse = {
     email: searchecdUser.email,
     id: searchecdUser.id,
     createdAt: searchecdUser.createdAt,
-    updatedAt: searchecdUser.updatedAt
+    updatedAt: searchecdUser.updatedAt,
+    token: token
   }
 
   return respondWithJSON(res,200,returnResponse);
