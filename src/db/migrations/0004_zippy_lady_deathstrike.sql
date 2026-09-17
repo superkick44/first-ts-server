@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN "is_cherpy_red" boolean DEFAULT false;

@@ -29,6 +29,13 @@
       "when": 1738754321387,
       "tag": "0003_acoustic_vindicator",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789667775052,
+      "tag": "0004_zippy_lady_deathstrike",
+      "breakpoints": true
     }
   ]
 }

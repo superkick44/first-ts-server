@@ -68,10 +68,27 @@ export function getBearerToken(req: Request) {
   return extractBearerToken(authHeader);
 }
 
+export function getAPIKey(req: Request) {
+  const authHeader = req.get("Authorization");
+  if (!authHeader) {
+    throw new UserNotAuthenticatedError("Malformed authorization header");
+  }
+
+  return extractPolkaToken(authHeader);
+}
+
 export function extractBearerToken(header: string) {
   const splitAuth = header.split(" ");
   if (splitAuth.length < 2 || splitAuth[0] !== "Bearer") {
     throw new UserNotAuthenticatedError("Malformed authorization header");
+  }
+  return splitAuth[1];
+}
+
+export function extractPolkaToken(header: string) {
+  const splitAuth = header.split(" ");
+  if (splitAuth.length < 2 || splitAuth[0] !== "ApiKey") {
+    throw new UserNotAuthenticatedError("Malformed Polka API Key");
   }
   return splitAuth[1];
 }
