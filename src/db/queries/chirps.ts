@@ -7,6 +7,11 @@ export async function createChirp(chirp: NewChirp) {
   return rows;
 }
 
+export async function getChirpsFromUser(userId:string){
+  const rows = await db.select().from(chirps).where(eq(chirps.userId,userId));
+  return rows;
+}
+
 export async function getChirps() {
   return db.select().from(chirps).orderBy(asc(chirps.createdAt));
 }

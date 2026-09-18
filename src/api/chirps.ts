@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
 
 import { respondWithJSON } from "./json.js";
-import { createChirp, deleteChirp, getChirp, getChirps } from "../db/queries/chirps.js";
+import { createChirp, deleteChirp, getChirp, getChirps, getChirpsFromUser } from "../db/queries/chirps.js";
 import { BadRequestError, NotFoundError, UserForbiddenError, UserNotAuthenticatedError } from "./errors.js";
 import { getBearerToken, validateJWT } from "../auth.js";
 import { config } from "../config.js";
+import { Chirp, NewChirp } from "../db/schema.js";
 
 export async function handlerChirpsCreate(req: Request, res: Response) {
   type parameters = {
@@ -49,9 +50,26 @@ function getCleanedBody(body: string, badWords: string[]) {
   return cleaned;
 }
 
-export async function handlerChirpsRetrieve(_: Request, res: Response) {
-  const chirps = await getChirps();
-  respondWithJSON(res, 200, chirps);
+export async function handlerChirpsRetrieve(req: Request, res: Response) {
+  const authorId = req.query.authorId; 
+  const sortDirection = req.query.sort;
+  let chirps:Chirp[]
+  if(authorId){
+    if(typeof authorId === "string"){
+      chirps = await getChirpsFromUser(authorId);
+    } else {
+      throw new BadRequestError("malformed author id");
+    }
+  }
+  else {
+    chirps = await getChirps();
+  }
+  if(!sortDirection || sortDirection === "asc"){
+    chirps.sort((a,b) => a.createdAt.getTime() - b.createdAt.getTime());
+  } else {
+    chirps.sort((a,b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+    respondWithJSON(res, 200, chirps);
 }
 
 export async function handlerChirpsGet(req: Request, res: Response) {
